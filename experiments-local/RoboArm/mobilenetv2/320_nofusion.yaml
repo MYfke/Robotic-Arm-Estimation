@@ -2,8 +2,8 @@ GPUS: '0'
 BACKBONE_MODEL: pose_mobilenetv2
 MODEL: multiview_pose_mobilenetv2
 DATA_DIR: ''
-OUTPUT_DIR: 'output'
-LOG_DIR: 'log'
+OUTPUT_DIR: '../../output'
+LOG_DIR: '../../log'
 WORKERS: 4
 PRINT_FREQ: 100
 
@@ -17,7 +17,7 @@ DATASET:
   ROT_FACTOR: 0
   SCALE_FACTOR: 0
 NETWORK:
-  PRETRAINED: 'models/pytorch/imagenet/mobilenet_v2.pth.tar'
+  PRETRAINED: '../../models/pytorch/imagenet/mobilenet_v2.pth.tar'
   TARGET_TYPE: gaussian
   AGGRE: false
   HEATMAP_SIZE:
@@ -75,7 +75,7 @@ TEST:
   POST_PROCESS: false
   USE_GT_BBOX: true
 PICT_STRUCT:
-  PAIRWISE_FILE: 'data/pict/pairwise.pkl'
+  PAIRWISE_FILE: '../../data/pict/pairwise.pkl'
 DEBUG:
   DEBUG: true
   SAVE_BATCH_IMAGES_GT: true
