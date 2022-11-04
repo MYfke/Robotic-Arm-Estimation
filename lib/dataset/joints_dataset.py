@@ -34,26 +34,13 @@ class JointsDataset(Dataset):
 
         self.num_joints = 20  # 关节点数量
         self.union_joints = {  # 关节点的键值对
-            0: 'root',
-            1: 'rhip',
-            2: 'rkne',
-            3: 'rank',
-            4: 'lhip',
-            5: 'lkne',
-            6: 'lank',
-            7: 'belly',
-            8: 'thorax',
-            9: 'neck',
-            10: 'upper neck',
-            11: 'nose',
-            12: 'head',
-            13: 'head top',
-            14: 'lsho',
-            15: 'lelb',
-            16: 'lwri',
-            17: 'rsho',
-            18: 'relb',
-            19: 'rwri'
+            0: 'rank',
+            1: 'base',  # 基座
+            2: 'shoulder',  # 肩部
+            3: 'big arm',  # 大臂
+            4: 'small arm',  # 小臂
+            5: 'wrist',  # 腕部
+            6: 'end',  # 末端
         }  # 关节点的键值表
         self.actual_joints = {}  # 实际数据集中的键值对
         self.u2a_mapping = {}  # 用户到应用程序的热力图，字典类型，用来接收get_mapping()的返回值
@@ -113,7 +100,7 @@ class JointsDataset(Dataset):
         image_file = osp.join(self.root, db_rec['source'], image_dir, 'images',
                               db_rec['image'])
         if self.data_format == 'zip':
-            from utils import zipreader
+            from lib.utils import zipreader
             data_numpy = zipreader.imread(
                 image_file, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
         else:
