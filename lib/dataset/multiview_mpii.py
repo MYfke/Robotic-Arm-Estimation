@@ -1,5 +1,5 @@
 import os
-import json_tricks as json
+import json
 import numpy as np
 
 from lib.dataset.joints_dataset import JointsDataset

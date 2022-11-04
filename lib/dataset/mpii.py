@@ -1,5 +1,5 @@
 import os
-import json_tricks as json
+import json
 import numpy as np
 
 from lib.dataset.joints_dataset import JointsDataset
@@ -31,9 +31,9 @@ class MPIIDataset(JointsDataset):
             14: 'lelb',
             15: 'lwri'
         }
-        self.db = self._get_db() #得到一个包含图片名与注释的数据库
+        self.db = self._get_db()  # 得到一个包含图片名与注释的数据库
 
-        self.u2a_mapping = super().get_mapping()   # {0: 6, 1: 2, 2: 1, 3: 0, 4: 3, 5: 4, 6: 5, 7: '*', 8: 7, 9: '*', 10: 8, 11: '*', 12: '*', 13: 9, 14: 13, 15: 14, 16: 15, 17: 12, 18: 11, 19: 10}
+        self.u2a_mapping = super().get_mapping()  # {0: 6, 1: 2, 2: 1, 3: 0, 4: 3, 5: 4, 6: 5, 7: '*', 8: 7, 9: '*', 10: 8, 11: '*', 12: '*', 13: 9, 14: 13, 15: 14, 16: 15, 17: 12, 18: 11, 19: 10}
         super().do_mapping()  # {0: 6, 1: 2, 2: 1, 3: 0, 4: 3, 5: 4, 6: 5, 7: '*', 8: 7, 9: '*', 10: 8, 11: '*', 12: '*', 13: 9, 14: 13, 15: 14, 16: 15, 17: 12, 18: 11, 19: 10}
         print()
 
@@ -99,6 +99,5 @@ class MPIIDataset(JointsDataset):
                 'joints_vis': joints_vis,
                 'source': 'mpii'
             })
-
 
         return gt_db

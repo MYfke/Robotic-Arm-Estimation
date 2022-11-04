@@ -16,7 +16,7 @@ import cv2
 import os
 import matplotlib.pyplot as plt
 
-from core.inference import get_max_preds
+from lib.core.inference import get_max_preds
 
 
 def save_batch_image_with_joints(batch_image,

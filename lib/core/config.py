@@ -197,7 +197,7 @@ def update_config(config_file):
     """
     # exp_config = None
     with open(config_file) as f:
-        exp_config = EasyDict(yaml.load(f))
+        exp_config = EasyDict(yaml.load(f, Loader=yaml.Loader))
         for k, v in exp_config.items():
             # k即为key，关键字
             # v即为values，关键字所对应的值

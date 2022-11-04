@@ -1,13 +1,3 @@
-# ------------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
-# Written by Chunyu Wang (chnuwa@microsoft.com)
-# ------------------------------------------------------------------------------
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import argparse
 import os
 import pprint
@@ -22,6 +12,8 @@ import torch.utils.data.distributed
 import torchvision.transforms as transforms
 from tensorboardX import SummaryWriter
 
+import lib.models as models
+import lib.dataset as dataset
 from lib.core.config import config
 from lib.core.config import get_model_name
 from lib.core.config import update_config
@@ -99,7 +91,7 @@ def main():
 
     model = eval('models.' + config.MODEL + '.get_multiview_pose_net')(
         backbone_model, config)  # 设置完整的模型
-    print(model)
+
 
     this_dir = os.path.dirname(__file__)  # 得到当前目录
     shutil.copy2(
