@@ -1,7 +1,26 @@
+# 简介
+## 数据集
+使用自建数据集 RoboArm，此为机械臂示意图
+
+![](.\docs\机械臂示意图.png)
+
+关键点标注如下：
+
+```
+0: 'rank',
+1: 'base',  # 基座
+2: 'shoulder',  # 肩部
+3: 'big arm',  # 大臂
+4: 'small arm',  # 小臂
+5: 'wrist',  # 腕部
+6: 'end',  # 末端
+```
+
+
 
 # 快速开始
 ## 安装
-1. 克隆这个 repo，我们将把你克隆 multiview-pose 的目录称为 {POSE_ROOT}
+1. 克隆这个 repo，我们将把你克隆 Robotic Arm Estimation 的目录称为 {POSE_ROOT}
 2. 安装依赖项。
 3. 下载 pytorch imagenet 预训练模型. 请在 {POSE_ROOT} 模型下下载它们，并使它们看起来像这样：
 
