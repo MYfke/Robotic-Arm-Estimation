@@ -105,14 +105,14 @@ https://1drv.ms/u/s!AjX41AtnTHeTiQs7hDJ2sYoGJDEB?e=YyJcI4
 ## 2D 训练和测试
 **RoboArm 数据集上的关键点识别训练和验证**
 ```
-python run/pose2d/train.py --cfg experiments-local/RoboArm/resnet50/256_fusion.yaml
-python run/pose2d/valid.py --cfg experiments-local/RoboArm/resnet50/256_fusion.yaml
+python run/pose2d/train.py --cfg ../../experiments-local/RoboArm/resnet50/256_fusion.yaml
+python run/pose2d/valid.py --cfg ../../experiments-local/RoboArm/resnet50/256_fusion.yaml
 ```
 ## 3D 测试
 **RoboArm 上的多视图测试（基于 CPU 或 GPU）**
 ```
-python run/pose3d/estimate.py --cfg experiments-local/RoboArm/resnet50/256_fusion.yaml (CPU 版本)
-python run/pose3d/estimate_cuda.py --cfg experiments-local/RoboArm/resnet50/256_fusion.yaml (GPU 版本)
+python run/pose3d/estimate.py --cfg ../../experiments-local/RoboArm/resnet50/256_fusion.yaml (CPU 版本)
+python run/pose3d/estimate_cuda.py --cfg ../../experiments-local/RoboArm/resnet50/256_fusion.yaml (GPU 版本)
 ```
 
 
