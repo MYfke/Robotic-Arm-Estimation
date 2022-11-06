@@ -32,15 +32,14 @@ class JointsDataset(Dataset):
         self.transform = transform
         self.db = []  # 数据库
 
-        self.num_joints = 20  # 关节点数量
+        self.num_joints = cfg.NETWORK.NUM_JOINTS  # 关节点数量
         self.union_joints = {  # 关节点的键值对
-            0: 'rank',
-            1: 'base',  # 基座
-            2: 'shoulder',  # 肩部
-            3: 'big arm',  # 大臂
-            4: 'small arm',  # 小臂
-            5: 'wrist',  # 腕部
-            6: 'end',  # 末端
+            0: 'base',  # 基座
+            1: 'shoulder',  # 肩部
+            2: 'big arm',  # 大臂
+            3: 'small arm',  # 小臂
+            4: 'wrist',  # 腕部
+            5: 'end',  # 末端
         }  # 关节点的键值表
         self.actual_joints = {}  # 实际数据集中的键值对
         self.u2a_mapping = {}  # 用户到应用程序的热力图，字典类型，用来接收get_mapping()的返回值
@@ -98,7 +97,7 @@ class JointsDataset(Dataset):
 
         image_dir = 'images.zip@' if self.data_format == 'zip' else ''
         image_file = osp.join(self.root, db_rec['source'], image_dir, 'images',
-                              db_rec['image'])
+                              db_rec['imgname'])
         if self.data_format == 'zip':
             from lib.utils import zipreader
             data_numpy = zipreader.imread(
@@ -110,8 +109,6 @@ class JointsDataset(Dataset):
         joints = db_rec['joints_2d'].copy()
         joints_vis = db_rec['joints_vis'].copy()
 
-        center = np.array(db_rec['center']).copy()
-        scale = np.array(db_rec['scale']).copy()
         rotation = 0
 
         if self.is_train:

@@ -10,13 +10,12 @@ class MultiviewRoboArmDataset(JointsDataset):
     def __init__(self, cfg, image_set, is_train, transform=None):
         super().__init__(cfg, image_set, is_train, transform)
         self.actual_joints = {
-            0: 'rank',
-            1: 'base',  # 基座
-            2: 'shoulder',  # 肩部
-            3: 'big arm',  # 大臂
-            4: 'small arm',  # 小臂
-            5: 'wrist',  # 腕部
-            6: 'end',  # 末端
+            0: 'base',  # 基座
+            1: 'shoulder',  # 肩部
+            2: 'big arm',  # 大臂
+            3: 'small arm',  # 小臂
+            4: 'wrist',  # 腕部
+            5: 'end',  # 末端
         }
         self.db = self._get_db()
 

@@ -13,13 +13,12 @@ class RoboArmDataset(JointsDataset):
     def __init__(self, cfg, image_set, is_train, transform=None):
         super().__init__(cfg, image_set, is_train, transform)
         self.actual_joints = {
-            0: 'rank',
-            1: 'base',  # 基座
-            2: 'shoulder',  # 肩部
-            3: 'big arm',  # 大臂
-            4: 'small arm',  # 小臂
-            5: 'wrist',  # 腕部
-            6: 'end',  # 末端
+            0: 'base',  # 基座
+            1: 'shoulder',  # 肩部
+            2: 'big arm',  # 大臂
+            3: 'small arm',  # 小臂
+            4: 'wrist',  # 腕部
+            5: 'end',  # 末端
         }
         self.db = self._get_db()  # 得到一个包含图片名与注释的数据库
 
@@ -57,37 +56,15 @@ class RoboArmDataset(JointsDataset):
 
         gt_db = []
         for a in anno:  # a为json文件中的一个元素
-            image_name = a['image']  # 读取图片的名称
-
-            c = np.array(a['center'], dtype=np.float)
-            s = np.array([a['scale'], a['scale']], dtype=np.float)
-
-            # Adjust center/scale slightly to avoid cropping limbs  稍微调整中心/比例以避免裁剪四肢
-            if c[0] != -1:
-                c[1] = c[1] + 15 * s[1]
-                s = s * 1.25
-
-            # MPII uses matlab format, index is based 1, MPII采用matlab格式，索引以1为基础，
-            # we should first convert to 0-based index，我们应该首先转换为基于 0 的索引
-            c = c - 1
-
-            joints_vis = np.zeros((16, 3), dtype=np.float)
-            if self.subset != 'test':
-                joints = np.array(a['joints'])
-                joints[:, 0:2] = joints[:, 0:2] - 1
-                vis = np.array(a['joints_vis'])
-
-                joints_vis[:, 0] = vis[:]
-                joints_vis[:, 1] = vis[:]
-
             gt_db.append({
-                'image': image_name,
-                'center': c,
-                'scale': s,
-                'joints_2d': joints,
-                'joints_3d': np.zeros((16, 3)),
-                'joints_vis': joints_vis,
-                'source': 'mpii'
+                'imgname': a['imgname'],
+                'bbox_center': a['bbox_center'],
+                'bbox_size': a['bbox_size'],
+                'label': [keypoint['label'] for keypoint in a['keypoints']],
+                'joints_2d': [keypoint['coord'] for keypoint in a['keypoints']],
+                # 'joints_3d': np.zeros((16, 3)),
+                'joints_vis': [keypoint['visible'] for keypoint in a['keypoints']],
+                'source': 'RoboArm'
             })
 
         return gt_db
