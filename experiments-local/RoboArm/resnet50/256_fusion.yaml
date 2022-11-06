@@ -13,7 +13,7 @@ DATASET:
   ROOT: '../../data/'
   TRAIN_SUBSET: train
   TEST_SUBSET: validation
-  DATA_FORMAT: 'zip'
+  DATA_FORMAT: 'jpg'
   ROT_FACTOR: 0
   SCALE_FACTOR: 0
 NETWORK:
