@@ -14,7 +14,7 @@ from lib.utils.vis import save_debug_images
 logger = logging.getLogger(__name__)
 
 
-def routing(raw_features, aggre_features, is_aggre, meta):
+def routing(raw_features, aggre_features, is_aggre, meta):  # TODO 这里的判断多余
     if not is_aggre:
         return raw_features
 
@@ -56,11 +56,13 @@ def train(config, data, model, criterion, optim, epoch, output_dir,
     end = time.time()
     for i, (input, target, weight, meta) in enumerate(data):  # 每一个循环传入一个batch进行迭代训练
         data_time.update(time.time() - end)  # 每一个batch训练所用的时间
-
-        # 前向传播
-        raw_features, aggre_features = model(input)  # 将输入送入model里，得到模型预测的输出
-        # raw_features原始特征，aggre_features聚合特征
-        output = routing(raw_features, aggre_features, is_aggre, meta)  # 转化一下输出的格式
+        if is_aggre:
+            # 前向传播
+            raw_features, aggre_features = model(input)  # 将输入送入model里，得到模型预测的输出
+            # raw_features原始特征，aggre_features聚合特征
+            output = routing(raw_features, aggre_features, is_aggre, meta)  # 转化一下输出的格式
+        else:
+            output = model(input)
 
         loss = 0
         target_cuda = []
@@ -129,7 +131,7 @@ def train(config, data, model, criterion, optim, epoch, output_dir,
 
 def validate(config, loader, dataset, model, criterion, output_dir, writer_dict=None):
     """
-    证实模型的性能
+    验证模型的性能
 
     输入参数:
         config:配置参数
