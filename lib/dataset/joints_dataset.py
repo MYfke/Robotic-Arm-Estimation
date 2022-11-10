@@ -78,7 +78,7 @@ class JointsDataset(Dataset):
                     index = int(mapping[i])
                     joints_union[i] = joints[index]
                     joints_union_vis[i] = joints_vis[index]
-            item['joints_2d'] = joints_union
+            item['joints_2d'] = joints_union  # TODO 扩张到三维的作用未知
             item['joints_vis'] = joints_union_vis
 
     def _get_db(self):
@@ -109,6 +109,8 @@ class JointsDataset(Dataset):
         joints = db_rec['joints_2d'].copy()
         joints_vis = db_rec['joints_vis'].copy()
 
+        center = np.array(db_rec['bbox_center']).copy()
+        scale = np.array(db_rec['bbox_size']).copy()
         rotation = 0
 
         if self.is_train:

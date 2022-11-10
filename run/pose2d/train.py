@@ -39,7 +39,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train keypoints network')  # 创建一个训练关键点的解析器
     parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str)
     args, rest = parser.parse_known_args()
-    update_config(args.cfg)
+    update_config(args.cfg)  # 更新config
 
     parser.add_argument('--frequent', help='frequency of logging', default=config.PRINT_FREQ, type=int)  # 日志的频率
     parser.add_argument('--gpus', help='gpus', type=str)  # GPU数量
@@ -54,7 +54,7 @@ def parse_args():
     return args
 
 
-def reset_config(config, args):
+def reset_config(config, args):  # TODO 此函数应该写到config里
     """重置配置文件
     将关于训练网络的命令行参数导入到配置文件中去
     此函数实现更改GPU、训练用图片格式、数据加载器数量的功能
