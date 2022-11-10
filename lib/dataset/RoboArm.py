@@ -24,30 +24,14 @@ class RoboArmDataset(JointsDataset):
 
         self.u2a_mapping = super().get_mapping()  # {0: 6, 1: 2, 2: 1, 3: 0, 4: 3, 5: 4, 6: 5, 7: '*', 8: 7, 9: '*', 10: 8, 11: '*', 12: '*', 13: 9, 14: 13, 15: 14, 16: 15, 17: 12, 18: 11, 19: 10}
         super().do_mapping()  # {0: 6, 1: 2, 2: 1, 3: 0, 4: 3, 5: 4, 6: 5, 7: '*', 8: 7, 9: '*', 10: 8, 11: '*', 12: '*', 13: 9, 14: 13, 15: 14, 16: 15, 17: 12, 18: 11, 19: 10}
-        print()
+
+        self.grouping = self.get_group(self.db)
+        self.group_size = len(self.grouping)
 
     def _get_db(self):
-        """返回一个列表类型的数据库
-
-        列表不断添加一个这个样子的东西
-        [{'image': '015601864.jpg',
-        'center': array([593.     , 301.31569]),
-        'scale': array([3.7763075, 3.7763075]),
-        'joints_2d': array([[619.    , 393.    ],[615.    , 268.    ],[572.    , 184.    ],
-                            [646.    , 187.    ],[660.    , 220.    ],[655.    , 230.    ],
-                            [609.    , 186.    ],[646.    , 175.    ],[636.0201, 188.8183],
-                            [694.9799, 107.1817],[605.    , 216.    ],[552.    , 160.    ],
-                            [600.    , 166.    ],[691.    , 184.    ],[692.    , 239.    ],
-                            [687.    , 312.    ]]),
-        'joints_3d': array([[0., 0., 0.],[0., 0., 0.],[0., 0., 0.],[0., 0., 0.],[0., 0., 0.],[0., 0., 0.],
-                            [0., 0., 0.],[0., 0., 0.],[0., 0., 0.],[0., 0., 0.],[0., 0., 0.],[0., 0., 0.],
-                            [0., 0., 0.],[0., 0., 0.],[0., 0., 0.],[0., 0., 0.]]),
-        'joints_vis': array([[1., 1., 0.],[1., 1., 0.],[1., 1., 0.],[1., 1., 0.],[1., 1., 0.],[1., 1., 0.],
-                            [1., 1., 0.],[1., 1., 0.],[1., 1., 0.],[1., 1., 0.],[1., 1., 0.],[1., 1., 0.],
-                            [1., 1., 0.],[1., 1., 0.],[1., 1., 0.],[1., 1., 0.]]),
-        'source': 'mpii'}  {……}]
-        不断添加格式如上的元素
-           """
+        """
+        返回一个列表类型的数据库
+        """
         # 得到数据库
         file_name = os.path.join(self.root, 'RoboArm', 'annot',  # 注释文件的文件名
                                  self.subset + '.json')
@@ -58,6 +42,7 @@ class RoboArmDataset(JointsDataset):
         for a in anno:  # a为json文件中的一个元素
             gt_db.append({
                 'imgname': a['imgname'],
+                'camera_id': a['camera_id'],
                 'bbox_center': a['bbox_center'],
                 'bbox_size': a['bbox_size'],
                 'label': [keypoint['label'] for keypoint in a['keypoints']],
@@ -68,3 +53,34 @@ class RoboArmDataset(JointsDataset):
             })
 
         return gt_db
+
+    def get_group(self, db):
+        grouping = {}
+        nitems = len(db)
+        for i in range(nitems):
+            camera_id = db[i]['camera_id']
+            if db[i]['imgname'][2:] not in grouping:
+                grouping[db[i]['imgname'][2:]] = [-1, -1, -1, -1]
+            grouping[db[i]['imgname'][2:]][camera_id] = i
+
+        filtered_grouping = []
+        for _, v in grouping.items():
+            if np.all(np.array(v) != -1):
+                filtered_grouping.append(v)
+
+        if not self.is_train:
+            filtered_grouping = filtered_grouping[::64]
+
+        return filtered_grouping
+
+    def __getitem__(self, idx):
+        item = np.random.choice(self.grouping[idx])
+        return super().__getitem__(item)
+
+    def __len__(self):
+        return self.group_size
+
+    def get_key_str(self, datum):
+        return 's_{:02}_act_{:02}_subact_{:02}_imgid_{:06}'.format(
+            datum['subject'], datum['action'], datum['subaction'],
+            datum['image_id'])

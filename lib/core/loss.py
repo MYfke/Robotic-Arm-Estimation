@@ -19,8 +19,8 @@ class JointsMSELoss(nn.Module):
             heatmap_pred = heatmaps_pred[idx].squeeze()
             heatmap_gt = heatmaps_gt[idx].squeeze()
             if self.use_target_weight:
-                loss += self.criterion(heatmap_pred.mul(target_weight[:, idx]),
-                                       heatmap_gt.mul(target_weight[:, idx]))
+                loss += self.criterion(heatmap_pred.mul(target_weight.expand(-1, heatmap_pred.size(1))), # TODO 问题出在Tensor不自动广播了
+                                       heatmap_gt.mul(target_weight.expand(-1, heatmap_pred.size(1))))  # 所以将Tensor扩张，但此写法比较丑陋
             else:
                 loss += self.criterion(heatmap_pred, heatmap_gt)
 

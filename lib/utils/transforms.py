@@ -65,8 +65,8 @@ def get_affine_transform(center,
     if not isinstance(scale, np.ndarray) and not isinstance(scale, list):
         scale = np.array([scale, scale])
 
-    scale_tmp = scale * 200.0
-    src_w = scale_tmp[0]
+    src_w = scale[0]
+    src_h = scale[1]
     dst_w = output_size[0]
     dst_h = output_size[1]
 
@@ -76,8 +76,8 @@ def get_affine_transform(center,
 
     src = np.zeros((3, 2), dtype=np.float32)
     dst = np.zeros((3, 2), dtype=np.float32)
-    src[0, :] = center + scale_tmp * shift
-    src[1, :] = center + src_dir + scale_tmp * shift
+    src[0, :] = center + scale * shift
+    src[1, :] = center + src_dir + scale * shift
     dst[0, :] = [dst_w * 0.5, dst_h * 0.5]
     dst[1, :] = np.array([dst_w * 0.5, dst_h * 0.5]) + dst_dir
 
