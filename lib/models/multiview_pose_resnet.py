@@ -69,6 +69,10 @@ class MultiViewPose(nn.Module):
         self.aggre_layer = Aggre
 
     def forward(self, views):
+        """
+        此时如果有多个视角，作特征融合，
+        如果只有一个视角则不做
+        """
         if isinstance(views, list):
             single_views = []
             for view in views:

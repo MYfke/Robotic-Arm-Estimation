@@ -7,7 +7,7 @@ from lib.utils.transforms import transform_preds
 
 def get_max_preds(batch_heatmaps):
     '''
-    get predictions from score maps
+    get predictions from score maps  从分数图获得预测
     heatmaps: numpy.ndarray([batch_size, num_joints, height, width])
     '''
     assert isinstance(batch_heatmaps, np.ndarray), \
