@@ -221,34 +221,6 @@ def gen_config(config_file):
         yaml.dump(dict(cfg), f, default_flow_style=False)  # aml.dump 将一个python对象生成为yaml文档
 
 
-def update_dir(model_dir, log_dir, data_dir):
-    """用来更新配置文件中的目录信息
-
-    传入参数：
-        model_dir：模型输出计算结果的文件夹
-        log_dir：生成日志文件的文件夹
-        data_dir：模型传入训练数据的文件夹
-
-    返回值：
-        无
-    """
-    if model_dir:
-        config.OUTPUT_DIR = model_dir
-
-    if log_dir:
-        config.LOG_DIR = log_dir
-
-    if data_dir:
-        config.DATA_DIR = data_dir
-
-    config.DATASET.ROOT = os.path.join(config.DATA_DIR, config.DATASET.ROOT)
-
-    config.TEST.BBOX_FILE = os.path.join(config.DATA_DIR, config.TEST.BBOX_FILE)
-
-    config.NETWORK.PRETRAINED = os.path.join(config.DATA_DIR,
-                                             config.NETWORK.PRETRAINED)
-
-
 def reset_config(args):
     """
     重置配置文件,将关于命令行参数导入到配置文件中去
@@ -259,18 +231,46 @@ def reset_config(args):
         config.DATASET.DATA_FORMAT = args.data_format
     if args.workers:
         config.WORKERS = args.workers
-    if args.model_dir:
-        config.OUTPUT_DIR = args.model_dir
-    if args.log_dir:
-        config.LOG_DIR = args.log_dir
-    if args.data_dir:
-        config.DATA_DIR = args.data_dir
+    if args.modelDir:
+        config.OUTPUT_DIR = args.modelDir
+    if args.logDir:
+        config.LOG_DIR = args.logDir
+    if args.dataDir:
+        config.DATA_DIR = args.dataDir
 
     config.DATASET.ROOT = os.path.join(config.DATA_DIR, config.DATASET.ROOT)
 
     config.TEST.BBOX_FILE = os.path.join(config.DATA_DIR, config.TEST.BBOX_FILE)
 
     config.NETWORK.PRETRAINED = os.path.join(config.DATA_DIR, config.NETWORK.PRETRAINED)
+
+
+def get_model_name(cfg):
+    """获取将要使用的模型名称
+
+    在models目录下含有使用不同底层网络构建的模型，
+    此函数可以通过返回不同的模块名称，来实现构建不同的多视角信息融合网络
+
+    输入参数：
+        cfg：固定参数，即config字典
+
+    返回值：
+        name：一个带有模型名称及层数的字符串 (例如 multiview_pose_resnet_50 )
+        full name：一个信息更加全的字符串 (例如 320x320_multiview_pose_resnet_50_d256d256d256 )
+    """
+
+    name = '{model}_{num_layers}'.format(
+        model=cfg.MODEL, num_layers=cfg.POSE_RESNET.NUM_LAYERS)
+    deconv_suffix = ''.join(
+        'd{}'.format(num_filters)
+        for num_filters in cfg.POSE_RESNET.NUM_DECONV_FILTERS)
+    full_name = '{height}x{width}_{name}_{deconv_suffix}'.format(
+        height=cfg.NETWORK.IMAGE_SIZE[1],
+        width=cfg.NETWORK.IMAGE_SIZE[0],
+        name=name,
+        deconv_suffix=deconv_suffix)
+
+    return name, full_name
 
 
 if __name__ == '__main__':
