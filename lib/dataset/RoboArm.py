@@ -74,13 +74,15 @@ class RoboArmDataset(JointsDataset):
         return filtered_grouping
 
     def __getitem__(self, idx):
-        item = np.random.choice(self.grouping[idx])
-        return super().__getitem__(item)
+        input, target, weight, meta = [], [], [], []
+        items = self.grouping[idx]
+        for item in items:
+            i, t, w, m = super().__getitem__(item)
+            input.append(i)
+            target.append(t)
+            weight.append(w)
+            meta.append(m)
+        return input, target, weight, meta
 
     def __len__(self):
         return self.group_size
-
-    def get_key_str(self, datum):
-        return 's_{:02}_act_{:02}_subact_{:02}_imgid_{:06}'.format(
-            datum['subject'], datum['action'], datum['subaction'],
-            datum['image_id'])
