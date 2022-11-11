@@ -1,6 +1,7 @@
 import os
 import json
 import numpy as np
+import collections
 
 from lib.dataset.joints_dataset import JointsDataset
 
@@ -22,7 +23,7 @@ class MultiviewRoboArmDataset(JointsDataset):
         self.u2a_mapping = super().get_mapping()
         super().do_mapping()
 
-        self.grouping = self.get_group()
+        self.grouping = self.get_group(self.db)
         self.group_size = len(self.grouping)
 
     def __getitem__(self, idx):
@@ -39,56 +40,80 @@ class MultiviewRoboArmDataset(JointsDataset):
     def __len__(self):
         return self.group_size
 
-    def get_group(self):
-        grouping = []
-        mpii_length = len(self.db)
-        for i in range(mpii_length // 4):
-            mini_group = []
-            for j in range(4):
-                index = i * 4 + j
-                mini_group.append(index)
-            grouping.append(mini_group)
-        return grouping
+    def get_group(self, db):
+        grouping = {}
+        nitems = len(db)
+        for i in range(nitems):
+            camera_id = db[i]['camera_id']
+            if db[i]['imgname'][2:] not in grouping:
+                grouping[db[i]['imgname'][2:]] = [-1, -1, -1, -1]
+            grouping[db[i]['imgname'][2:]][camera_id] = i
+
+        filtered_grouping = []
+        for _, v in grouping.items():
+            if np.all(np.array(v) != -1):
+                filtered_grouping.append(v)
+
+        if not self.is_train:
+            filtered_grouping = filtered_grouping[::64]
+
+        return filtered_grouping
 
     def _get_db(self):
-        file_name = os.path.join(self.root, 'mpii', 'annot',
+        """
+        返回一个列表类型的数据库
+        """
+        # 得到数据库
+        file_name = os.path.join(self.root, 'RoboArm', 'annot',  # 注释文件的文件名
                                  self.subset + '.json')
         with open(file_name) as anno_file:
-            anno = json.load(anno_file)
+            anno = json.load(anno_file)  # 加载注释文件
 
         gt_db = []
-        for a in anno:
-            image_name = a['image']
-
-            c = np.array(a['center'], dtype=np.float)
-            s = np.array([a['scale'], a['scale']], dtype=np.float)
-
-            # Adjust center/scale slightly to avoid cropping limbs
-            if c[0] != -1:
-                c[1] = c[1] + 15 * s[1]
-                s = s * 1.25
-
-            # MPII uses matlab format, index is based 1,
-            # we should first convert to 0-based index
-            c = c - 1
-
-            joints_vis = np.zeros((16, 3), dtype=np.float)
-            if self.subset != 'test':
-                joints = np.array(a['joints'])
-                joints[:, 0:2] = joints[:, 0:2] - 1
-                vis = np.array(a['joints_vis'])
-
-                joints_vis[:, 0] = vis[:]
-                joints_vis[:, 1] = vis[:]
-
+        for a in anno:  # a为json文件中的一个元素
             gt_db.append({
-                'image': image_name,
-                'center': c,
-                'scale': s,
-                'joints_2d': joints,
-                'joints_3d': np.zeros((16, 3)),
-                'joints_vis': joints_vis,
-                'source': 'mpii'
+                'imgname': a['imgname'],
+                'camera_id': a['camera_id'],
+                'bbox_center': a['bbox_center'],
+                'bbox_size': a['bbox_size'],
+                'label': [keypoint['label'] for keypoint in a['keypoints']],
+                'joints_2d': [keypoint['coord'] for keypoint in a['keypoints']],
+                # 'joints_3d': np.zeros((16, 3)),
+                'joints_vis': [keypoint['visible'] for keypoint in a['keypoints']],
+                'source': 'RoboArm'
             })
 
         return gt_db
+
+    def evaluate(self, pred, *args, **kwargs):
+        pred = pred.copy()
+
+        headsize = self.image_size[0] / 10.0
+        threshold = 0.5
+
+        u2a = self.u2a_mapping
+        a2u = {v: k for k, v in u2a.items() if v != '*'}
+        a = list(a2u.keys())
+        u = list(a2u.values())
+        indexes = list(range(len(a)))
+        indexes.sort(key=a.__getitem__)
+        sa = list(map(a.__getitem__, indexes))
+        su = np.array(list(map(u.__getitem__, indexes)))
+
+        gt = []
+        for items in self.grouping:
+            for item in items:
+                gt.append(self.db[item]['joints_2d'][su, :2])
+        gt = np.array(gt)
+        pred = pred[:, su, :2]
+
+        distance = np.sqrt(np.sum((gt - pred)**2, axis=2))
+        detected = (distance <= headsize * threshold)
+
+        joint_detection_rate = np.sum(detected, axis=0) / np.float(gt.shape[0])
+
+        name_values = collections.OrderedDict()
+        joint_names = self.actual_joints
+        for i in range(len(a2u)):
+            name_values[joint_names[sa[i]]] = joint_detection_rate[i]
+        return name_values, np.mean(joint_detection_rate)
