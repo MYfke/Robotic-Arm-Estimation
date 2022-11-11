@@ -68,7 +68,7 @@ ${POSE_ROOT}
     |-- |-- annot
         |   |-- test.json
         |   |-- train.json
-        |   |-- valid.json
+        |   |-- validation.json
         |-- images
             |-- 0-000001.jpg
             |-- 0-000004.jpg
@@ -84,7 +84,7 @@ ${POSE_ROOT}
     `-- |-- annot
         |   |-- test.json
         |   |-- train.json
-        |   `-- valid.json
+        |   `-- validation.json
         `-- images.zip
             `-- images
                   |-- 0-000001.jpg
