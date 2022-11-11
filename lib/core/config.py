@@ -1,4 +1,3 @@
-
 """
 此模块含有两大基本内容，一是名为config的字典，其含有基本配置信息
 其二为有关跟新config字典的一些函数
@@ -109,7 +108,7 @@ config.TRAIN.GAMMA1 = 0.99
 config.TRAIN.GAMMA2 = 0.0
 
 config.TRAIN.BEGIN_EPOCH = 0
-config.TRAIN.END_EPOCH = 140
+config.TRAIN.END_EPOCH = 10
 
 config.TRAIN.RESUME = False
 
