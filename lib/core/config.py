@@ -3,9 +3,8 @@
 其二为有关跟新config字典的一些函数
 """
 import os
-
-import numpy as np
 import yaml
+import numpy as np
 from easydict import EasyDict
 
 config = EasyDict()  # 创建一个名为config的字典对象
@@ -56,7 +55,7 @@ config.CUDNN.BENCHMARK = True
 config.CUDNN.DETERMINISTIC = False
 config.CUDNN.ENABLED = True
 
-# common params for NETWORK
+# common params for NETWORK  NETWORK 的常用参数
 config.NETWORK = EasyDict()
 config.NETWORK.PRETRAINED = 'models/pytorch/imagenet/resnet50-19c8e357.pth'
 config.NETWORK.NUM_JOINTS = 6
@@ -66,7 +65,7 @@ config.NETWORK.SIGMA = 2
 config.NETWORK.TARGET_TYPE = 'gaussian'
 config.NETWORK.AGGRE = True
 
-# pose_resnet related params
+# pose_resnet related params  pose_resnet 相关参数
 config.POSE_RESNET = EasyDict()
 config.POSE_RESNET.NUM_LAYERS = 50
 config.POSE_RESNET.DECONV_WITH_BIAS = False
@@ -94,7 +93,7 @@ config.DATASET.CROP = True
 config.DATASET.SCALE_FACTOR = 0
 config.DATASET.ROT_FACTOR = 0
 
-# train
+# train  训练
 config.TRAIN = EasyDict()
 config.TRAIN.LR_FACTOR = 0.1
 config.TRAIN.LR_STEP = [90, 110]
@@ -115,7 +114,7 @@ config.TRAIN.RESUME = False
 config.TRAIN.BATCH_SIZE = 8
 config.TRAIN.SHUFFLE = True
 
-# testing
+# testing  测试
 config.TEST = EasyDict()
 config.TEST.BATCH_SIZE = 8
 config.TEST.STATE = ''
@@ -134,7 +133,7 @@ config.TEST.DETECTOR_DIR = ''
 config.TEST.MODEL_FILE = ''
 config.TEST.HEATMAP_LOCATION_FILE = 'predicted_heatmaps.h5'
 
-# debug
+# debug  调试
 config.DEBUG = EasyDict()
 config.DEBUG.DEBUG = True
 config.DEBUG.SAVE_BATCH_IMAGES_GT = True
@@ -250,36 +249,31 @@ def update_dir(model_dir, log_dir, data_dir):
                                              config.NETWORK.PRETRAINED)
 
 
-def get_model_name(cfg):
-    """获取将要使用的模型名称
-
-    在models目录下含有使用不同底层网络构建的模型，
-    此函数可以通过返回不同的模块名称，来实现构建不同的多视角信息融合网络
-
-    输入参数：
-        cfg：固定参数，即config字典
-
-    返回值：
-        name：一个带有模型名称及层数的字符串 (例如 multiview_pose_resnet_50 )
-        full name：一个信息更加全的字符串 (例如 320x320_multiview_pose_resnet_50_d256d256d256 )
+def reset_config(args):
     """
+    重置配置文件,将关于命令行参数导入到配置文件中去
+    """
+    if args.gpus:
+        config.GPUS = args.gpus
+    if args.data_format:
+        config.DATASET.DATA_FORMAT = args.data_format
+    if args.workers:
+        config.WORKERS = args.workers
+    if args.model_dir:
+        config.OUTPUT_DIR = args.model_dir
+    if args.log_dir:
+        config.LOG_DIR = args.log_dir
+    if args.data_dir:
+        config.DATA_DIR = args.data_dir
 
-    name = '{model}_{num_layers}'.format(
-        model=cfg.MODEL, num_layers=cfg.POSE_RESNET.NUM_LAYERS)
-    deconv_suffix = ''.join(
-        'd{}'.format(num_filters)
-        for num_filters in cfg.POSE_RESNET.NUM_DECONV_FILTERS)
-    full_name = '{height}x{width}_{name}_{deconv_suffix}'.format(
-        height=cfg.NETWORK.IMAGE_SIZE[1],
-        width=cfg.NETWORK.IMAGE_SIZE[0],
-        name=name,
-        deconv_suffix=deconv_suffix)
+    config.DATASET.ROOT = os.path.join(config.DATA_DIR, config.DATASET.ROOT)
 
-    return name, full_name
+    config.TEST.BBOX_FILE = os.path.join(config.DATA_DIR, config.TEST.BBOX_FILE)
+
+    config.NETWORK.PRETRAINED = os.path.join(config.DATA_DIR, config.NETWORK.PRETRAINED)
 
 
 if __name__ == '__main__':
-    config_file = "experiments-local/mixed/hrnet/256_fusion.yaml"
-    #   os.chdir("D:\A_PROJECT\Robotic Arm Estimation")
+    config_file = "../../experiments-local/RoboArm/resnet50/256_fusion.yaml"
     print(os.getcwd())
     update_config(config_file)

@@ -15,9 +15,9 @@ from tensorboardX import SummaryWriter
 import lib.models as models
 import lib.dataset as dataset
 from lib.core.config import config
-from lib.core.config import get_model_name
 from lib.core.config import update_config
-from lib.core.config import update_dir
+from lib.core.config import reset_config
+
 from lib.core.function import train
 from lib.core.function import validate
 from lib.core.loss import JointsMSELoss
@@ -27,56 +27,37 @@ from lib.utils.utils import save_checkpoint, load_checkpoint
 
 
 def parse_args():
-    """实现添加命令行参数功能，并可直接执行一部分参数
+    """实现添加命令行参数功能，并可解析参数用来更新config
 
     此函数实现了当文件在命令行窗口下运行时，可以输入命令行参数的功能，可以更加便捷的更换底层特征提取网络，
     其中，--cfg参数为必需选项，其值应为配置数据文件(.yaml文件)的路径及名称
-    此函数直接实现更改模型目录、日志目录、数据目录功能
 
-    返回值：
+    Returns:
         返回一个特定容器，其含有使用命令行参数时输入的数据
     """
-    parser = argparse.ArgumentParser(description='Train keypoints network')  # 创建一个训练关键点的解析器
+    parser = argparse.ArgumentParser(description='Train keypoints network')  # 创建一个参数解析器
     parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str)
-    args, rest = parser.parse_known_args()
+
+    args, rest = parser.parse_known_args()  # 解析参数
     update_config(args.cfg)  # 更新config
 
     parser.add_argument('--frequent', help='frequency of logging', default=config.PRINT_FREQ, type=int)  # 日志的频率
     parser.add_argument('--gpus', help='gpus', type=str)  # GPU数量
+    parser.add_argument('--data-format', help='data format', type=str, default='')  # 数据格式
     parser.add_argument('--workers', help='num of dataloader workers', type=int)  # 线程数
     parser.add_argument('--modelDir', help='model directory', type=str, default='')  # 模型目录
     parser.add_argument('--logDir', help='log directory', type=str, default='')  # 日志目录
     parser.add_argument('--dataDir', help='data directory', type=str, default='')  # 数据目录
-    parser.add_argument('--data-format', help='data format', type=str, default='')  # 数据格式
-    args = parser.parse_args()
-    update_dir(args.modelDir, args.logDir, args.dataDir)
+
+    args = parser.parse_args()  # 解析参数
+    reset_config(args)  # 将命令行参数传入到config模块中去
 
     return args
 
 
-def reset_config(config, args):  # TODO 此函数应该写到config里
-    """重置配置文件
-    将关于训练网络的命令行参数导入到配置文件中去
-    此函数实现更改GPU、训练用图片格式、数据加载器数量的功能
-
-    输入参数：
-        config：固定参数，即传入config字典
-        args：固定参数，即接收命令行参数的容器
-    """
-    if args.gpus:
-        config.GPUS = args.gpus
-    if args.data_format:
-        config.DATASET.DATA_FORMAT = args.data_format
-    if args.workers:
-        config.WORKERS = args.workers
-
-
 def main():
     args = parse_args()  # 接收命令行参数传入的数据
-    reset_config(config, args)  # 将命令行参数传入到config模块中去
-
-    logger, final_output_dir, tb_log_dir = create_logger(
-        config, args.cfg, 'train')  # 创建日志文件
+    logger, final_output_dir, tb_log_dir = create_logger(config, args.cfg, 'train')  # 创建日志文件
 
     logger.info(pprint.pformat(args))
     logger.info(pprint.pformat(config))
