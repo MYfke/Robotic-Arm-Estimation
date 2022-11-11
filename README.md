@@ -66,14 +66,13 @@ ${POSE_ROOT}
 |-- data
 |-- |-- RoboArm
     |-- |-- annot
-        |   |-- gt_valid.mat
         |   |-- test.json
         |   |-- train.json
-        |   |-- trainval.json
         |   |-- valid.json
         |-- images
-            |-- 000001163.jpg
-            |-- 000003072.jpg
+            |-- 0-000001.jpg
+            |-- 0-000004.jpg
+            |-- 1-000001.jpg
 ```
 
 如果您将图像文件压缩成单个 zip 文件，您应该像这样组织数据：
@@ -83,15 +82,14 @@ ${POSE_ROOT}
 |-- data
 `-- |-- RoboArm
     `-- |-- annot
-        |   |-- gt_valid.mat
         |   |-- test.json
         |   |-- train.json
-        |   |-- trainval.json
         |   `-- valid.json
         `-- images.zip
             `-- images
-                |-- 000001163.jpg
-                |-- 000003072.jpg
+                  |-- 0-000001.jpg
+                  |-- 0-000004.jpg
+                  |-- 1-000001.jpg
 ```
 
 
