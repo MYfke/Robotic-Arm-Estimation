@@ -8,7 +8,7 @@ WORKERS: 4
 PRINT_FREQ: 100
 
 DATASET:
-  TRAIN_DATASET: RoboArm
+  TRAIN_DATASET: multiview_RoboArm
   TEST_DATASET: multiview_RoboArm
   ROOT: '../../data/'
   TRAIN_SUBSET: train
@@ -16,6 +16,7 @@ DATASET:
   DATA_FORMAT: 'jpg'
   ROT_FACTOR: 0
   SCALE_FACTOR: 0
+
 NETWORK:
   PRETRAINED: '../../models/pytorch/imagenet/resnet50-19c8e357.pth'
   TARGET_TYPE: gaussian
@@ -28,6 +29,7 @@ NETWORK:
   - 256
   NUM_JOINTS: 6
   SIGMA: 2
+
 POSE_RESNET:
   FINAL_CONV_KERNEL: 1
   DECONV_WITH_BIAS: false
@@ -41,8 +43,10 @@ POSE_RESNET:
   - 4
   - 4
   NUM_LAYERS: 50
+
 LOSS:
   USE_TARGET_WEIGHT: true
+
 TRAIN:
   BATCH_SIZE: 8
   SHUFFLE: true
@@ -60,6 +64,7 @@ TRAIN:
   GAMMA2: 0.0
   MOMENTUM: 0.9
   NESTEROV: false
+
 TEST:
   BATCH_SIZE: 4
   BBOX_FILE: ''
@@ -74,8 +79,10 @@ TEST:
   OKS_THRE: 0.5
   POST_PROCESS: false
   USE_GT_BBOX: true
+
 PICT_STRUCT:
   PAIRWISE_FILE: '../../data/pict/pairwise.pkl'
+
 DEBUG:
   DEBUG: true
   SAVE_BATCH_IMAGES_GT: true

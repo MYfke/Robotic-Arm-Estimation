@@ -7,7 +7,9 @@ from lib.dataset.joints_dataset import JointsDataset
 
 
 class MultiviewRoboArmDataset(JointsDataset):
-
+    """
+    创建一个用于机械臂数据集的类
+    """
     def __init__(self, cfg, image_set, is_train, transform=None):
         super().__init__(cfg, image_set, is_train, transform)
         self.actual_joints = {
@@ -18,7 +20,7 @@ class MultiviewRoboArmDataset(JointsDataset):
             4: 'wrist',  # 腕部
             5: 'end',  # 末端
         }
-        self.db = self._get_db()
+        self.db = self._get_db()  # 得到一个包含图片名与注释的数据库
 
         self.u2a_mapping = super().get_mapping()
         super().do_mapping()
@@ -39,25 +41,6 @@ class MultiviewRoboArmDataset(JointsDataset):
 
     def __len__(self):
         return self.group_size
-
-    def get_group(self, db):
-        grouping = {}
-        nitems = len(db)
-        for i in range(nitems):
-            camera_id = db[i]['camera_id']
-            if db[i]['imgname'][2:] not in grouping:
-                grouping[db[i]['imgname'][2:]] = [-1, -1, -1, -1]
-            grouping[db[i]['imgname'][2:]][camera_id] = i
-
-        filtered_grouping = []
-        for _, v in grouping.items():
-            if np.all(np.array(v) != -1):
-                filtered_grouping.append(v)
-
-        if not self.is_train:
-            filtered_grouping = filtered_grouping[::64]
-
-        return filtered_grouping
 
     def _get_db(self):
         """
@@ -84,6 +67,25 @@ class MultiviewRoboArmDataset(JointsDataset):
             })
 
         return gt_db
+
+    def get_group(self, db):
+        grouping = {}
+        nitems = len(db)
+        for i in range(nitems):
+            camera_id = db[i]['camera_id']
+            if db[i]['imgname'][2:] not in grouping:
+                grouping[db[i]['imgname'][2:]] = [-1, -1, -1, -1]
+            grouping[db[i]['imgname'][2:]][camera_id] = i
+
+        filtered_grouping = []
+        for _, v in grouping.items():
+            if np.all(np.array(v) != -1):
+                filtered_grouping.append(v)
+
+        if not self.is_train:
+            filtered_grouping = filtered_grouping[::64]
+
+        return filtered_grouping
 
     def evaluate(self, pred, *args, **kwargs):
         pred = pred.copy()
