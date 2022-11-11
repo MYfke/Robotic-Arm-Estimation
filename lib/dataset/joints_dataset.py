@@ -84,9 +84,6 @@ class JointsDataset(Dataset):
     def _get_db(self):
         raise NotImplementedError
 
-    def evaluate(self, cfg, preds, output_dir, *args, **kwargs):
-        raise NotImplementedError
-
     def __len__(self, ):
         # 返回数据集中元素的个数
         return len(self.db)
