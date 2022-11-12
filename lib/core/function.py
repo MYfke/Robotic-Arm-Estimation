@@ -14,10 +14,7 @@ from lib.utils.vis import save_debug_images
 logger = logging.getLogger(__name__)
 
 
-def routing(raw_features, aggre_features, is_aggre, meta):  # TODO 这里的判断多余
-    if not is_aggre:
-        return raw_features
-
+def routing(raw_features, aggre_features, meta):
     output = []
     for r, a, m in zip(raw_features, aggre_features, meta):
         view = torch.zeros_like(a)  # 生成和括号内变量维度维度一致的全是零的内容
@@ -34,8 +31,8 @@ def train(config, data, model, criterion, optim, epoch, output_dir,
     """
     训练函数，每训练完一次即为每个epoch
 
-    传入参数:
-        cofig: 固定参数，config字典
+    Args:
+        config: 固定参数，config字典
         data: 传入一个数据加载器对象
         model: 传入一个完整的模型
         criterion: 传入一个损失函数对象
@@ -60,7 +57,7 @@ def train(config, data, model, criterion, optim, epoch, output_dir,
             # 前向传播
             raw_features, aggre_features = model(input)  # 将输入送入model里，得到模型预测的输出
             # raw_features原始特征，aggre_features聚合特征
-            output = routing(raw_features, aggre_features, is_aggre, meta)  # 转化一下输出的格式
+            output = routing(raw_features, aggre_features, meta)  # 转化一下输出的格式
         else:
             output = model(input)
 
@@ -103,16 +100,17 @@ def train(config, data, model, criterion, optim, epoch, output_dir,
         # 按照特定频率打印训练的成果
         if i % config.PRINT_FREQ == 0:
             gpu_memory_usage = torch.cuda.memory_allocated(0)
-            msg = 'Epoch: [{0}][{1}/{2}]\t' \
-                  'Time {batch_time.val:.3f}s ({batch_time.avg:.3f}s)\t' \
-                  'Speed {speed:.1f} samples/s\t' \
-                  'Data {data_time.val:.3f}s ({data_time.avg:.3f}s)\t' \
-                  'Loss {loss.val:.5f} ({loss.avg:.5f})\t' \
-                  'Accuracy {acc.val:.3f} ({acc.avg:.3f})\t' \
-                  'Memory {memory:.1f}'.format(
-                epoch, i, len(data), batch_time=batch_time,
-                speed=len(input) * input[0].size(0) / batch_time.val,
-                data_time=data_time, loss=losses, acc=avg_acc, memory=gpu_memory_usage)
+            msg = '--------------------------------------------------------\n' \
+                  '--------------------------------------------------------\n' \
+                  'Epoch: [{0}] Batch:[{1}/{2}]\t\t' \
+                  'Time: {batch_time.val:.3f}s ({batch_time.avg:.3f}s)\n' \
+                  'Speed: {speed:.1f} samples/s\t\t' \
+                  'Data: {data_time.val:.3f}s ({data_time.avg:.3f}s)\n' \
+                  'Loss: {loss.val:.5f} ({loss.avg:.5f})\t\t' \
+                  'Accuracy: {acc.val:.3f} ({acc.avg:.3f})\n' \
+                  'Memory: {memory:.1f}'.format(epoch, i, len(data), batch_time=batch_time,
+                                                speed=len(input) * input[0].size(0) / batch_time.val,
+                                                data_time=data_time, loss=losses, acc=avg_acc, memory=gpu_memory_usage)
             logger.info(msg)
 
             writer = writer_dict['writer']
@@ -133,7 +131,7 @@ def validate(config, loader, dataset, model, criterion, output_dir, writer_dict=
     """
     验证模型的性能
 
-    输入参数:
+    Args:
         config:配置参数
         loader:数据集加载器
         dataset:数据集
@@ -141,7 +139,7 @@ def validate(config, loader, dataset, model, criterion, output_dir, writer_dict=
         criterion:损失函数
         output_dir:输出目录
 
-    返回值:
+    Returns:
         perf_indicator:返回一个性能指标，反应出模型的能力
     """
     model.eval()  # 将模型设置为验证模式
@@ -150,7 +148,7 @@ def validate(config, loader, dataset, model, criterion, output_dir, writer_dict=
     avg_acc = AverageMeter()
 
     nsamples = len(dataset) * 4  # 样本的数量
-    is_aggre = config.NETWORK.AGGRE
+    is_aggre = config.NETWORK.AGGRE  # 是否特征融合
     njoints = config.NETWORK.NUM_JOINTS  # 关节的数量
     height = int(config.NETWORK.HEATMAP_SIZE[0])  # 热力图的高度
     width = int(config.NETWORK.HEATMAP_SIZE[1])  # 热力图的宽度
@@ -162,8 +160,13 @@ def validate(config, loader, dataset, model, criterion, output_dir, writer_dict=
     with torch.no_grad():
         end = time.time()
         for i, (input, target, weight, meta) in enumerate(loader):
-            raw_features, aggre_features = model(input)
-            output = routing(raw_features, aggre_features, is_aggre, meta)
+            if is_aggre:
+                # 前向传播
+                raw_features, aggre_features = model(input)  # 将输入送入model里，得到模型预测的输出
+                # raw_features原始特征，aggre_features聚合特征
+                output = routing(raw_features, aggre_features, meta)  # 转化一下输出的格式
+            else:
+                output = model(input)
 
             loss = 0
             target_cuda = []
@@ -216,12 +219,12 @@ def validate(config, loader, dataset, model, criterion, output_dir, writer_dict=
             idx += nimgs
 
             if i % config.PRINT_FREQ == 0:
-                msg = 'Test: [{0}/{1}]\t' \
-                      'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t' \
-                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t' \
-                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
-                    i, len(loader), batch_time=batch_time,
-                    loss=losses, acc=avg_acc)
+                msg = '--------------------------------------------------------\n' \
+                      'Test: [{0}/{1}]\t\t' \
+                      'Time: {batch_time.val:.3f} ({batch_time.avg:.3f})\n' \
+                      'Loss: {loss.val:.4f} ({loss.avg:.4f})\t\t' \
+                      'Accuracy: {acc.val:.3f} ({acc.avg:.3f})'.format(i, len(loader), batch_time=batch_time,
+                                                                       loss=losses, acc=avg_acc)
                 logger.info(msg)
 
                 for k in range(len(input)):
@@ -252,7 +255,6 @@ def validate(config, loader, dataset, model, criterion, output_dir, writer_dict=
         _, full_arch_name = get_model_name(config)
         logger.info('| Arch ' +
                     ' '.join(['| {}'.format(name) for name in names]) + ' |')
-        logger.info('|---' * (num_values + 1) + '|')
         logger.info('| ' + full_arch_name + ' ' +
                     ' '.join(['| {:.3f}'.format(value) for value in values]) +
                     ' |')
@@ -273,11 +275,6 @@ class AverageMeter(object):  # 继承 object 类的是新式类，不继承 obje
         self.sum = 0
         self.avg = 0
         self.val = 0
-
-    #  self.reset()
-
-    # def reset(self):
-    #    pass
 
     def update(self, val, n=1):
         self.val = val
