@@ -9,10 +9,14 @@ import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.transforms as transforms
+# noinspection PyUnresolvedReferences
+import lib.models as models
+# noinspection PyUnresolvedReferences
+import lib.dataset as dataset
 
 from lib.core.config import config
 from lib.core.config import update_config
-from lib.core.config import update_dir
+from lib.core.config import reset_config
 from lib.core.function import validate
 from lib.core.loss import JointsMSELoss
 from lib.utils.utils import create_logger
@@ -21,23 +25,15 @@ from lib.utils.utils import create_logger
 def parse_args():
     """解析参数"""
     parser = argparse.ArgumentParser(description='Train keypoints network')
-    # general
-    parser.add_argument(
-        '--cfg', help='experiment configure file name', required=True, type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str)
 
-    args, rest = parser.parse_known_args()
-    # update config  更新配置
+    args, _ = parser.parse_known_args()
     update_config(args.cfg)
 
     # training
-    parser.add_argument(
-        '--frequent',
-        help='frequency of logging',
-        default=config.PRINT_FREQ,
-        type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=config.PRINT_FREQ, type=int)
     parser.add_argument('--gpus', help='gpus', type=str)
-    parser.add_argument('--state', help='the state of model which is used to test (best or final)', default='best',
-                        type=str)
+    parser.add_argument('--state', help='the state of model which is used to test (best or final)', default='best', type=str)
     parser.add_argument('--workers', help='num of dataloader workers', type=int)
     parser.add_argument('--model-file', help='model state file', type=str)
     parser.add_argument('--flip-test', help='use flip test', action='store_true')
@@ -51,34 +47,14 @@ def parse_args():
     parser.add_argument('--data-format', help='data format', type=str, default='')
 
     args = parser.parse_args()
-
-    update_dir(args.modelDir, args.logDir, args.dataDir)
+    reset_config(args)  # 将命令行参数传入到config模块中去
 
     return args
 
 
-def reset_config(config, args):
-    if args.gpus:
-        config.GPUS = args.gpus
-    if args.data_format:
-        config.DATASET.DATA_FORMAT = args.data_format
-    if args.workers:
-        config.WORKERS = args.workers
-    if args.flip_test:
-        config.TEST.FLIP_TEST = args.flip_test
-    if args.post_process:
-        config.TEST.POST_PROCESS = args.post_process
-    if args.shift_heatmap:
-        config.TEST.SHIFT_HEATMAP = args.shift_heatmap
-    if args.model_file:
-        config.TEST.MODEL_FILE = args.model_file
-    if args.state:
-        config.TEST.STATE = args.state
-
-
 def main():
     args = parse_args()
-    reset_config(config, args)
+    reset_config(args)
 
     logger, final_output_dir, tb_log_dir = create_logger(
         config, args.cfg, 'valid')
