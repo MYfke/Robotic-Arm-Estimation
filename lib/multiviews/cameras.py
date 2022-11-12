@@ -58,11 +58,11 @@ def world_to_camera_frame(x, R, T):
     世界坐标转相机坐标
 
     Args:
-        x: Nx3 3d points in world coordinates
-        R: 3x3 Camera rotation matrix
-        T: 3x1 Camera translation parameters
+        x: Nx3 3d points in world coordinates  世界坐标
+        R: 3x3 Camera rotation matrix  相机坐标到世界坐标的旋转矩阵
+        T: 3x1 Camera translation parameters  相机坐标到世界坐标的平移矩阵
     Returns:
-        xcam: Nx3 3d points in camera coordinates
+        xcam: Nx3 3d points in camera coordinates  相机坐标
     """
 
     xcam = R.dot(x.T - T)  # rotate and translate
@@ -74,12 +74,12 @@ def camera_to_world_frame(x, R, T):
     相机坐标转世界坐标
 
     Args:
-        x: Nx3 points in camera coordinates
-        R: 3x3 Camera rotation matrix
-        T: 3x1 Camera translation parameters
+        x: Nx3 points in camera coordinates  相机坐标
+        R: 3x3 Camera rotation matrix  相机坐标到世界坐标的旋转矩阵
+        T: 3x1 Camera translation parameters  相机坐标到世界坐标的平移矩阵
     Returns:
-        xcam: Nx3 points in world coordinates
+        xwrd: Nx3 points in world coordinates  世界坐标
     """
 
-    xcam = R.T.dot(x.T) + T  # rotate and translate
-    return xcam.T
+    xwrd = R.T.dot(x.T) + T  # rotate and translate
+    return xwrd.T
