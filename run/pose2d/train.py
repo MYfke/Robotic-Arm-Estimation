@@ -11,12 +11,15 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.transforms as transforms
 from tensorboardX import SummaryWriter
-
+# noinspection PyUnresolvedReferences
 import lib.models as models
+# noinspection PyUnresolvedReferences
 import lib.dataset as dataset
+
 from lib.core.config import config
 from lib.core.config import update_config
 from lib.core.config import reset_config
+from lib.core.config import get_model_name
 
 from lib.core.function import train
 from lib.core.function import validate
@@ -38,7 +41,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train keypoints network')  # 创建一个参数解析器
     parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str)
 
-    args, rest = parser.parse_known_args()  # 解析参数
+    args, _ = parser.parse_known_args()  # 解析参数
     update_config(args.cfg)  # 更新config
 
     parser.add_argument('--frequent', help='frequency of logging', default=config.PRINT_FREQ, type=int)  # 日志的频率
@@ -58,21 +61,20 @@ def parse_args():
 def main():
     args = parse_args()  # 接收命令行参数传入的数据
     logger, final_output_dir, tb_log_dir = create_logger(config, args.cfg, 'train')  # 创建日志文件
-
+    print('输出结果路径: ' + final_output_dir)
+    print('日志文件路径: ' + tb_log_dir)
     logger.info(pprint.pformat(args))
     logger.info(pprint.pformat(config))
-    print(final_output_dir)
-    print(tb_log_dir)
+
     cudnn.benchmark = config.CUDNN.BENCHMARK
-    torch.backends.cudnn.deterministic = config.CUDNN.DETERMINISTIC
-    torch.backends.cudnn.enabled = config.CUDNN.ENABLED
+    cudnn.deterministic = config.CUDNN.DETERMINISTIC
+    cudnn.enabled = config.CUDNN.ENABLED
 
     backbone_model = eval('models.' + config.BACKBONE_MODEL + '.get_pose_net')(
         config, is_train=True)  # 设置骨干网络模型，用于特征提取
 
     model = eval('models.' + config.MODEL + '.get_multiview_pose_net')(
         backbone_model, config)  # 设置完整的模型
-
 
     this_dir = os.path.dirname(__file__)  # 得到当前目录
     shutil.copy2(
@@ -134,7 +136,7 @@ def main():
         num_workers=config.WORKERS,
         pin_memory=True)
 
-    best_model = False  # 布尔值指标，记录当前模型状态是否最好
+
     best_perf = 0.0  # 用于记录最好的性能指标
     for epoch in range(start_epoch, config.TRAIN.END_EPOCH):
         lr_scheduler.step()
@@ -147,7 +149,7 @@ def main():
 
         if perf_indicator > best_perf:  # 判断当前指标是否为最好指标
             best_perf = perf_indicator  # 如果是则设置当前指标为最好指标
-            best_model = True
+            best_model = True  # 布尔值指标，记录当前模型状态是否最好
         else:
             best_model = False
 
