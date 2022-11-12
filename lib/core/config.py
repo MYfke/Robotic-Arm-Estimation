@@ -1,6 +1,8 @@
 """
-此模块含有两大基本内容，一是名为config的字典，其含有基本配置信息
-其二为有关跟新config字典的一些函数
+此模块含有两大基本内容：
+    一是名为config的字典，其含有基本配置信息，这些信息为默认信息，不要随便修改。
+    调参的话请修改experiment中的yaml文件
+    其二为有关更新config字典的一些函数
 """
 import os
 import yaml
@@ -189,8 +191,8 @@ def update_config(config_file):
     此函数通过加载不同的配置数据文件，用来更新
     config模块，从而实现快速更改底层特征提取网络
 
-    传入参数：
-        config_file：将要使用的模型的配置数据文件(.yaml文件)的文件路径及名称
+    Args:
+        config_file: 将要使用的模型的配置数据文件(.yaml文件)的文件路径及名称
 
     """
     # exp_config = None
@@ -237,6 +239,16 @@ def reset_config(args):
         config.LOG_DIR = args.logDir
     if args.dataDir:
         config.DATA_DIR = args.dataDir
+    if args.flip_test:
+        config.TEST.FLIP_TEST = args.flip_test
+    if args.post_process:
+        config.TEST.POST_PROCESS = args.post_process
+    if args.shift_heatmap:
+        config.TEST.SHIFT_HEATMAP = args.shift_heatmap
+    if args.model_file:
+        config.TEST.MODEL_FILE = args.model_file
+    if args.state:
+        config.TEST.STATE = args.state
 
     config.DATASET.ROOT = os.path.join(config.DATA_DIR, config.DATASET.ROOT)
 
@@ -251,12 +263,12 @@ def get_model_name(cfg):
     在models目录下含有使用不同底层网络构建的模型，
     此函数可以通过返回不同的模块名称，来实现构建不同的多视角信息融合网络
 
-    输入参数：
-        cfg：固定参数，即config字典
+    Args:
+        cfg: 固定参数，即config字典
 
-    返回值：
-        name：一个带有模型名称及层数的字符串 (例如 multiview_pose_resnet_50 )
-        full name：一个信息更加全的字符串 (例如 320x320_multiview_pose_resnet_50_d256d256d256 )
+    Returns:
+        name: 一个带有模型名称及层数的字符串 (例如 multiview_pose_resnet_50 )
+        full name: 一个信息更加全的字符串 (例如 320x320_multiview_pose_resnet_50_d256d256d256 )
     """
 
     name = '{model}_{num_layers}'.format(
