@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import os
 import logging
 import time
@@ -16,13 +12,13 @@ from lib.core.config import get_model_name
 def create_logger(cfg, cfg_name, phase='train'):
     """创建日志文件
 
-    输入参数：
-        cfg： 固定参数，config字典
+    Args:
+        cfg: 固定参数，config字典
         cfg_name: 配置数据文件的名称，即通过更改此项参数，实现config字典内容的改变
-        phase:
+        phase: 关键字
 
-    返回值：
-        logger：返回一个记录器，用来记录日志内容
+    Returns:
+        logger: 返回一个记录器，用来记录日志内容
 
 
     """
@@ -52,8 +48,7 @@ def create_logger(cfg, cfg_name, phase='train'):
     console = logging.StreamHandler()  # 设置控制台日志处理器
     logging.getLogger('').addHandler(console)
 
-    tensorboard_log_dir = Path(cfg.LOG_DIR) / dataset / model / \
-                          (cfg_name + time_str)
+    tensorboard_log_dir = Path(cfg.LOG_DIR) / dataset / model / (cfg_name + time_str)
     print('=> creating {}'.format(tensorboard_log_dir))
     tensorboard_log_dir.mkdir(parents=True, exist_ok=True)
 

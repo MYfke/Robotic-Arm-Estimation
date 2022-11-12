@@ -1,4 +1,3 @@
-
 import numpy as np
 from pymvg.camera_model import CameraModel
 from pymvg.multi_camera_system import MultiCameraSystem
