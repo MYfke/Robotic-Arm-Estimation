@@ -4,6 +4,10 @@ import pickle
 
 import h5py
 import numpy as np
+# noinspection PyUnresolvedReferences
+import lib.models as models
+# noinspection PyUnresolvedReferences
+import lib.dataset as dataset
 
 from lib.core.config import config
 from lib.core.config import update_config
