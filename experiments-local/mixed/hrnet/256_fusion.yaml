@@ -1,6 +1,6 @@
 GPUS: '0'
-BACKBONE_MODEL: pose_hrnet
-MODEL: multiview_pose_hrnet
+BACKBONE_MODEL: pose_resnet
+MODEL: multiview_pose_resnet
 DATA_DIR: ''
 OUTPUT_DIR: 'output'
 LOG_DIR: 'log'
@@ -8,16 +8,16 @@ WORKERS: 4
 PRINT_FREQ: 100
 
 DATASET:
-  TRAIN_DATASET: mixed
+  TRAIN_DATASET: multiview_h36m
   TEST_DATASET: multiview_h36m
-  ROOT: 'data/'
+  ROOT: '../../data/'
   TRAIN_SUBSET: train
   TEST_SUBSET: validation
-  DATA_FORMAT: 'zip'
+  DATA_FORMAT: 'jpg'
   ROT_FACTOR: 0
   SCALE_FACTOR: 0
 NETWORK:
-  PRETRAINED: 'models/pytorch/imagenet/hrnet_w48-8ef0771d.pth'
+  PRETRAINED: '../../models/pytorch/imagenet/hrnet_w48-8ef0771d.pth'
   TARGET_TYPE: gaussian
   AGGRE: true
   HEATMAP_SIZE:
