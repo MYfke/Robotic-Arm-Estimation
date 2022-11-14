@@ -10,7 +10,7 @@ PRINT_FREQ: 100
 DATASET:
   TRAIN_DATASET: multiview_mpii
   TEST_DATASET: multiview_h36m
-  ROOT: 'data/'
+  ROOT: '../../data/pict/'
   TRAIN_SUBSET: train
   TEST_SUBSET: validation
   DATA_FORMAT: 'zip'
@@ -75,7 +75,7 @@ TEST:
   POST_PROCESS: false
   USE_GT_BBOX: true
 PICT_STRUCT:
-  PAIRWISE_FILE: 'data/pict/pairwise.pkl'
+  PAIRWISE_FILE: '../../data/pict/pict/pairwise.pkl'
 DEBUG:
   DEBUG: true
   SAVE_BATCH_IMAGES_GT: true

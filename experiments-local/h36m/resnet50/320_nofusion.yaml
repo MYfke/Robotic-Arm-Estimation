@@ -10,7 +10,7 @@ PRINT_FREQ: 100
 DATASET:
   TRAIN_DATASET: multiview_h36m
   TEST_DATASET: multiview_h36m
-  ROOT: 'data/'
+  ROOT: '../../data/'
   TRAIN_SUBSET: train
   TEST_SUBSET: validation
   DATA_FORMAT: 'jpg'

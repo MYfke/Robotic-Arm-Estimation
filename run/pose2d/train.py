@@ -57,6 +57,7 @@ def parse_args():
 
     return args
 
+
 def reset_config(config, args):
     if args.gpus:
         config.GPUS = args.gpus
@@ -64,6 +65,7 @@ def reset_config(config, args):
         config.DATASET.DATA_FORMAT = args.data_format
     if args.workers:
         config.WORKERS = args.workers
+
 
 def main():
     args = parse_args()  # 接收命令行参数传入的数据
@@ -143,7 +145,6 @@ def main():
         shuffle=False,
         num_workers=config.WORKERS,
         pin_memory=True)
-
 
     best_perf = 0.0  # 用于记录最好的性能指标
     for epoch in range(start_epoch, config.TRAIN.END_EPOCH):
