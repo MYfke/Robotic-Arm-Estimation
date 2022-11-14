@@ -18,7 +18,7 @@ import lib.dataset as dataset
 
 from lib.core.config import config
 from lib.core.config import update_config
-from lib.core.config import reset_config
+from lib.core.config import update_dir
 from lib.core.config import get_model_name
 
 from lib.core.function import train
@@ -52,14 +52,22 @@ def parse_args():
     parser.add_argument('--logDir', help='log directory', type=str, default='')  # 日志目录
     parser.add_argument('--dataDir', help='data directory', type=str, default='')  # 数据目录
 
-    args = parser.parse_args()  # 解析参数
-    reset_config(args)  # 将命令行参数传入到config模块中去
+    args = parser.parse_args()
+    update_dir(args.modelDir, args.logDir, args.dataDir)
 
     return args
 
+def reset_config(config, args):
+    if args.gpus:
+        config.GPUS = args.gpus
+    if args.data_format:
+        config.DATASET.DATA_FORMAT = args.data_format
+    if args.workers:
+        config.WORKERS = args.workers
 
 def main():
     args = parse_args()  # 接收命令行参数传入的数据
+    reset_config(config, args)
     logger, final_output_dir, tb_log_dir = create_logger(config, args.cfg, 'train')  # 创建日志文件
     print('输出结果路径: ' + final_output_dir)
     print('日志文件路径: ' + tb_log_dir)

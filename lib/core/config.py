@@ -223,38 +223,22 @@ def gen_config(config_file):
         yaml.dump(dict(cfg), f, default_flow_style=False)  # aml.dump 将一个python对象生成为yaml文档
 
 
-def reset_config(args):
-    """
-    重置配置文件,将关于命令行参数导入到配置文件中去
-    """
-    if args.gpus:
-        config.GPUS = args.gpus
-    if args.data_format:
-        config.DATASET.DATA_FORMAT = args.data_format
-    if args.workers:
-        config.WORKERS = args.workers
-    if args.modelDir:
-        config.OUTPUT_DIR = args.modelDir
-    if args.logDir:
-        config.LOG_DIR = args.logDir
-    if args.dataDir:
-        config.DATA_DIR = args.dataDir
-    if args.flip_test:
-        config.TEST.FLIP_TEST = args.flip_test
-    if args.post_process:
-        config.TEST.POST_PROCESS = args.post_process
-    if args.shift_heatmap:
-        config.TEST.SHIFT_HEATMAP = args.shift_heatmap
-    if args.model_file:
-        config.TEST.MODEL_FILE = args.model_file
-    if args.state:
-        config.TEST.STATE = args.state
+def update_dir(model_dir, log_dir, data_dir):
+    if model_dir:
+        config.OUTPUT_DIR = model_dir
+
+    if log_dir:
+        config.LOG_DIR = log_dir
+
+    if data_dir:
+        config.DATA_DIR = data_dir
 
     config.DATASET.ROOT = os.path.join(config.DATA_DIR, config.DATASET.ROOT)
 
     config.TEST.BBOX_FILE = os.path.join(config.DATA_DIR, config.TEST.BBOX_FILE)
 
-    config.NETWORK.PRETRAINED = os.path.join(config.DATA_DIR, config.NETWORK.PRETRAINED)
+    config.NETWORK.PRETRAINED = os.path.join(config.DATA_DIR,
+                                             config.NETWORK.PRETRAINED)
 
 
 def get_model_name(cfg):

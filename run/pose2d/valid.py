@@ -16,7 +16,7 @@ import lib.dataset as dataset
 
 from lib.core.config import config
 from lib.core.config import update_config
-from lib.core.config import reset_config
+from lib.core.config import update_dir
 from lib.core.function import validate
 from lib.core.loss import JointsMSELoss
 from lib.utils.utils import create_logger
@@ -47,9 +47,27 @@ def parse_args():
     parser.add_argument('--data-format', help='data format', type=str, default='')
 
     args = parser.parse_args()
-    reset_config(args)  # 将命令行参数传入到config模块中去
+    update_dir(args.modelDir, args.logDir, args.dataDir)
 
     return args
+
+def reset_config(config, args):
+    if args.gpus:
+        config.GPUS = args.gpus
+    if args.data_format:
+        config.DATASET.DATA_FORMAT = args.data_format
+    if args.workers:
+        config.WORKERS = args.workers
+    if args.flip_test:
+        config.TEST.FLIP_TEST = args.flip_test
+    if args.post_process:
+        config.TEST.POST_PROCESS = args.post_process
+    if args.shift_heatmap:
+        config.TEST.SHIFT_HEATMAP = args.shift_heatmap
+    if args.model_file:
+        config.TEST.MODEL_FILE = args.model_file
+    if args.state:
+        config.TEST.STATE = args.state
 
 
 def main():
