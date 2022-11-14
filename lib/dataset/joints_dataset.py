@@ -33,45 +33,45 @@ class JointsDataset(Dataset):
         self.db = []  # 数据库
 
         self.num_joints = cfg.NETWORK.NUM_JOINTS  # 关节点数量
-        self.union_joints = {  # 关节点的键值对
-            0: 'base',  # 基座
-            1: 'shoulder',  # 肩部
-            2: 'big arm',  # 大臂
+        self.union_joints = {  # 联合关节点，包含所有可能出现的关节点，每一个关节点对应一个索引
+            0: 'base',       # 基座
+            1: 'shoulder',   # 肩部
+            2: 'big arm',    # 大臂
             3: 'small arm',  # 小臂
-            4: 'wrist',  # 腕部
-            5: 'end',  # 末端
-        }  # 关节点的键值表
+            4: 'wrist',      # 腕部
+            5: 'end',        # 末端
+        }
         self.actual_joints = {}  # 实际数据集中的键值对
         self.u2a_mapping = {}  # 用户到应用程序的热力图，字典类型，用来接收get_mapping()的返回值
 
     def get_mapping(self):
-        """创建并返回一张实际检测到的映射表(字典类型)
-
-        返回一张字典类型的变量，其中，找到的关节点按照键值表定义的保存，
-        未找到的关键点只有键，值用 * 替代， 类似这样  {0: 'root', 1: '*', 2: 'rkne', 3: 'rank'}
         """
-        union_keys = list(self.union_joints.keys())  # 得到关节点的键值表的键(key)
-        union_values = list(self.union_joints.values())  # 得到关节点的键值表的值(value)，此时两个列表的对应元素可由同一个索引取到
+        创建并返回一张联合关节点和实际关节点的映射表 (字典类型)
 
-        mapping = {k: '*' for k in union_keys}  # 创建一个字典，格式如下{0: '*', 1: '*', 2: '*', 3: '*'}
-        for k, v in self.actual_joints.items():  # items() 方法取出键值对，k是实际数据集的键值表的键（key）
-            idx = union_values.index(v)  # index() 在列表找出值的索引。
-            key = union_keys[idx]  # 将索引再放进由键组成的列表中，取出键，这两行作用就是由值来找出键
-            mapping[key] = k  # 将mapping的key与实际数据集的key对应起来
-        return mapping  # 这个返回值用u2a_mapping接收
+        因为不同的数据集标注的关节点不同，因此返回一张实际数据集的联合关节点的映射表，没有的关节点用 * 替代，
+        例如 {0: 0, 1: 1, 2: '*', 3: 2...} 就表示联合关节点0对应实际关节点0，联合关节点2无对应，联合关节点3对应实际关节点2
+        """
+        union_keys = list(self.union_joints.keys())
+        union_values = list(self.union_joints.values())
+
+        u2a_mapping = {k: '*' for k in union_keys}
+        for k, v in self.actual_joints.items():
+            idx = union_values.index(v)
+            key = union_keys[idx]
+            u2a_mapping[key] = k
+        return u2a_mapping  # 这个返回值用self.u2a_mapping接收
 
     def do_mapping(self):
-        mapping = self.u2a_mapping  # 这张mapping就是get_mapping()的返回值 列如{0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7,
-        # 8: '*', 9: 8, 10: '*', 11: 9, 12: 10, 13: '*', 14: 11, 15: 12, 16: 13, 17: 14, 18: 15, 19: 16}
+        # TODO 此函数的作用暂时未知
+        mapping = self.u2a_mapping  # 这张mapping就是get_mapping()的返回值
 
         for item in self.db:  # 循环遍历数据库中的每个项，此时的数据集其实就是注释文件
-            # 具体作用未知，好像是吧 * 对应关节点的二维坐标（joints_2d）和可见值（joints_vis）都设为0
             joints = item['joints_2d']  # 得到关节点的二维坐标
             joints_vis = item['joints_vis']  # 关节点可见值，1可见，0不可见
 
-            njoints = len(mapping)  # 列如 njoints
-            joints_union = np.zeros(shape=(njoints, 2))  # 列如，创建20X2的numpy表
-            joints_union_vis = np.zeros(shape=(njoints, 3))  # 列如，创建20X3的numpy表
+            njoints = len(mapping)
+            joints_union = np.zeros(shape=(njoints, 2))
+            joints_union_vis = np.zeros(shape=(njoints, 3))
 
             for i in range(njoints):
                 if mapping[i] != '*':
@@ -89,7 +89,9 @@ class JointsDataset(Dataset):
         return len(self.db)
 
     def __getitem__(self, idx):
-        # 魔法方法，给数据集像字典一样的检索能力
+        """
+        魔法方法，实现了数据集取出数据的功能
+        """
         db_rec = copy.deepcopy(self.db[idx])
 
         image_dir = 'images.zip@' if self.data_format == 'zip' else ''
@@ -100,7 +102,7 @@ class JointsDataset(Dataset):
             data_numpy = zipreader.imread(
                 image_file, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
         else:
-            data_numpy = cv2.imread(
+            data_numpy = cv2.imread(  # 将图片数据读入
                 image_file, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
 
         joints = db_rec['joints_2d'].copy()

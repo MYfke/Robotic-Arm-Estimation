@@ -26,7 +26,9 @@ class MultiviewRoboArmDataset(JointsDataset):
         super().do_mapping()
 
         self.grouping = self.get_group(self.db)
-        self.group_size = len(self.grouping)
+        # 一个grouping，包含了多个视角同一时刻的图片
+        # 也就是说，这个数据集的每取出一份数据形状应该为 [batch,grouping,channel,width,height]
+        self.group_size = len(self.grouping)  # 视角个数
 
     def __getitem__(self, idx):
         input, target, weight, meta = [], [], [], []
@@ -44,7 +46,7 @@ class MultiviewRoboArmDataset(JointsDataset):
 
     def _get_db(self):
         """
-        返回一个列表类型的数据库
+        返回一个列表类型的数据库，包含所有的标签信息
         """
         # 得到数据库
         file_name = os.path.join(self.root, 'RoboArm', 'annot',  # 注释文件的文件名
@@ -61,7 +63,7 @@ class MultiviewRoboArmDataset(JointsDataset):
                 'bbox_size': a['bbox_size'],
                 'label': [keypoint['label'] for keypoint in a['keypoints']],
                 'joints_2d': [keypoint['coord'] for keypoint in a['keypoints']],
-                # 'joints_3d': np.zeros((16, 3)),
+                # 'joints_3d': np.zeros((16, 3)),TODO 目前数据集没有3D信息，后续需要补充
                 'joints_vis': [keypoint['visible'] for keypoint in a['keypoints']],
                 'source': 'RoboArm'
             })
@@ -109,7 +111,7 @@ class MultiviewRoboArmDataset(JointsDataset):
         gt = np.array(gt)
         pred = pred[:, su, :2]
 
-        distance = np.sqrt(np.sum((gt - pred)**2, axis=2))
+        distance = np.sqrt(np.sum((gt - pred) ** 2, axis=2))
         detected = (distance <= headsize * threshold)
 
         joint_detection_rate = np.sum(detected, axis=0) / np.float(gt.shape[0])

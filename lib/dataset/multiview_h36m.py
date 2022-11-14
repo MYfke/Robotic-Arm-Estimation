@@ -51,7 +51,7 @@ class MultiViewH36M(JointsDataset):
             17: 'rsho',
             18: 'relb',
             19: 'rwri'
-        }
+        }  # 由于父类是机械臂的关节点，因此在此处重写联合关节点
         self.db = self._get_db()
 
         self.u2a_mapping = super().get_mapping()
