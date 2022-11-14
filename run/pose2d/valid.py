@@ -33,7 +33,8 @@ def parse_args():
     # training
     parser.add_argument('--frequent', help='frequency of logging', default=config.PRINT_FREQ, type=int)
     parser.add_argument('--gpus', help='gpus', type=str)
-    parser.add_argument('--state', help='the state of model which is used to test (best or final)', default='best', type=str)
+    parser.add_argument('--state', help='the state of model which is used to test (best or final)', default='best',
+                        type=str)
     parser.add_argument('--workers', help='num of dataloader workers', type=int)
     parser.add_argument('--model-file', help='model state file', type=str)
     parser.add_argument('--flip-test', help='use flip test', action='store_true')
@@ -50,6 +51,7 @@ def parse_args():
     update_dir(args.modelDir, args.logDir, args.dataDir)
 
     return args
+
 
 def reset_config(config, args):
     if args.gpus:
@@ -72,7 +74,7 @@ def reset_config(config, args):
 
 def main():
     args = parse_args()
-    reset_config(args)
+    reset_config(config, args)
 
     logger, final_output_dir, tb_log_dir = create_logger(
         config, args.cfg, 'valid')
