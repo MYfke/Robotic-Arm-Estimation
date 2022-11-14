@@ -2,24 +2,24 @@ GPUS: '0'
 BACKBONE_MODEL: pose_resnet
 MODEL: multiview_pose_resnet
 DATA_DIR: ''
-OUTPUT_DIR: 'output'
-LOG_DIR: 'log'
+OUTPUT_DIR: '../../output'
+LOG_DIR: '../../log'
 WORKERS: 4
 PRINT_FREQ: 100
 
 DATASET:
-  TRAIN_DATASET: mixed
+  TRAIN_DATASET: multiview_h36m
   TEST_DATASET: multiview_h36m
   ROOT: 'data/'
   TRAIN_SUBSET: train
   TEST_SUBSET: validation
-  DATA_FORMAT: 'zip'
+  DATA_FORMAT: 'jpg'
   ROT_FACTOR: 0
   SCALE_FACTOR: 0
 NETWORK:
-  PRETRAINED: 'models/pytorch/imagenet/resnet152-b121ed2d.pth'
+  PRETRAINED: '../../models/pytorch/imagenet/resnet152-b121ed2d.pth'
   TARGET_TYPE: gaussian
-  AGGRE: false
+  AGGRE: true
   HEATMAP_SIZE:
   - 64
   - 64
@@ -75,7 +75,7 @@ TEST:
   POST_PROCESS: false
   USE_GT_BBOX: true
 PICT_STRUCT:
-  PAIRWISE_FILE: 'data/pict/pairwise.pkl'
+  PAIRWISE_FILE: '../../data/pict/pairwise.pkl'
 DEBUG:
   DEBUG: true
   SAVE_BATCH_IMAGES_GT: true

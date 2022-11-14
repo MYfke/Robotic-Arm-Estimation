@@ -1,33 +1,33 @@
 GPUS: '0'
-BACKBONE_MODEL: pose_resnet
-MODEL: multiview_pose_resnet
+BACKBONE_MODEL: pose_mobilenetv2
+MODEL: multiview_pose_mobilenetv2
 DATA_DIR: ''
-OUTPUT_DIR: 'output'
-LOG_DIR: 'log'
+OUTPUT_DIR: '../../output'
+LOG_DIR: '../../log'
 WORKERS: 4
 PRINT_FREQ: 100
 
 DATASET:
-  TRAIN_DATASET: mixed
+  TRAIN_DATASET: multiview_h36m
   TEST_DATASET: multiview_h36m
   ROOT: 'data/'
   TRAIN_SUBSET: train
   TEST_SUBSET: validation
-  DATA_FORMAT: 'zip'
+  DATA_FORMAT: 'jpg'
   ROT_FACTOR: 0
   SCALE_FACTOR: 0
 NETWORK:
-  PRETRAINED: 'models/pytorch/imagenet/resnet50-19c8e357.pth'
+  PRETRAINED: '../../models/pytorch/imagenet/mobilenet_v2.pth.tar'
   TARGET_TYPE: gaussian
-  AGGRE: true
+  AGGRE: false
   HEATMAP_SIZE:
-  - 80
-  - 80
+  - 64
+  - 64
   IMAGE_SIZE:
-  - 320
-  - 320
+  - 256
+  - 256
   NUM_JOINTS: 20
-  SIGMA: 3
+  SIGMA: 2
 POSE_RESNET:
   FINAL_CONV_KERNEL: 1
   DECONV_WITH_BIAS: false
@@ -44,7 +44,7 @@ POSE_RESNET:
 LOSS:
   USE_TARGET_WEIGHT: true
 TRAIN:
-  BATCH_SIZE: 2
+  BATCH_SIZE: 8
   SHUFFLE: true
   BEGIN_EPOCH: 0
   END_EPOCH: 30
@@ -61,7 +61,7 @@ TRAIN:
   MOMENTUM: 0.9
   NESTEROV: false
 TEST:
-  BATCH_SIZE: 2
+  BATCH_SIZE: 4
   BBOX_FILE: ''
   BBOX_THRE: 1.0
   DETECTOR: fpn_dcn
@@ -75,7 +75,7 @@ TEST:
   POST_PROCESS: false
   USE_GT_BBOX: true
 PICT_STRUCT:
-  PAIRWISE_FILE: 'data/pict/pairwise.pkl'
+  PAIRWISE_FILE: '../../data/pict/pairwise.pkl'
 DEBUG:
   DEBUG: true
   SAVE_BATCH_IMAGES_GT: true

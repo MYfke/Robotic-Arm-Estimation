@@ -1,9 +1,9 @@
 GPUS: '0'
-BACKBONE_MODEL: pose_resnet
-MODEL: multiview_pose_resnet
+BACKBONE_MODEL: pose_hrnet
+MODEL: multiview_pose_hrnet
 DATA_DIR: ''
-OUTPUT_DIR: 'output'
-LOG_DIR: 'log'
+OUTPUT_DIR: '../../output'
+LOG_DIR: '../../log'
 WORKERS: 4
 PRINT_FREQ: 100
 
@@ -16,6 +16,7 @@ DATASET:
   DATA_FORMAT: 'jpg'
   ROT_FACTOR: 0
   SCALE_FACTOR: 0
+  CROP: False
 NETWORK:
   PRETRAINED: '../../models/pytorch/imagenet/hrnet_w48-8ef0771d.pth'
   TARGET_TYPE: gaussian
@@ -76,7 +77,7 @@ TEST:
   USE_GT_BBOX: true
 PICT_STRUCT:
   FIRST_NBINS: 16
-  PAIRWISE_FILE: 'data/pict/pairwise.pkl'
+  PAIRWISE_FILE: '../../data/pict/pairwise.pkl'
 DEBUG:
   DEBUG: true
   SAVE_BATCH_IMAGES_GT: true
